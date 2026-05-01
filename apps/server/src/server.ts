@@ -60,6 +60,7 @@ import {
   authPairingLinksRouteLayer,
   authPairingCredentialRouteLayer,
   authSessionRouteLayer,
+  authSshBearerBootstrapRouteLayer,
   authWebSocketTokenRouteLayer,
 } from "./auth/http.ts";
 import { ServerSecretStoreLive } from "./auth/Layers/ServerSecretStore.ts";
@@ -252,6 +253,7 @@ export const makeRoutesLayer = Layer.mergeAll(
   authPairingLinksRouteLayer,
   authPairingCredentialRouteLayer,
   authSessionRouteLayer,
+  authSshBearerBootstrapRouteLayer,
   authWebSocketTokenRouteLayer,
   attachmentsRouteLayer,
   orchestrationDispatchRouteLayer,
