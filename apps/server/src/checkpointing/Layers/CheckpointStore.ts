@@ -14,7 +14,6 @@ import { randomUUID } from "node:crypto";
 import { Effect, Layer, FileSystem, Path } from "effect";
 
 import { CheckpointInvariantError } from "../Errors.ts";
-import { VcsProcessExitError } from "@t3tools/contracts";
 import { VcsDriver } from "../../vcs/VcsDriver.ts";
 import { CheckpointStore, type CheckpointStoreShape } from "../Services/CheckpointStore.ts";
 import { CheckpointRef } from "@t3tools/contracts";
@@ -128,11 +127,8 @@ const makeCheckpointStore = Effect.gen(function* () {
         });
         const treeOid = writeTreeResult.stdout.trim();
         if (treeOid.length === 0) {
-          return yield* new VcsProcessExitError({
+          return yield* new CheckpointInvariantError({
             operation,
-            command: "git write-tree",
-            cwd: input.cwd,
-            exitCode: 0,
             detail: "git write-tree returned an empty tree oid.",
           });
         }
@@ -146,11 +142,8 @@ const makeCheckpointStore = Effect.gen(function* () {
         });
         const commitOid = commitTreeResult.stdout.trim();
         if (commitOid.length === 0) {
-          return yield* new VcsProcessExitError({
+          return yield* new CheckpointInvariantError({
             operation,
-            command: "git commit-tree",
-            cwd: input.cwd,
-            exitCode: 0,
             detail: "git commit-tree returned an empty commit oid.",
           });
         }
@@ -234,11 +227,8 @@ const makeCheckpointStore = Effect.gen(function* () {
       }
 
       if (!fromCommitOid || !toCommitOid) {
-        return yield* new VcsProcessExitError({
+        return yield* new CheckpointInvariantError({
           operation,
-          command: "git diff",
-          cwd: input.cwd,
-          exitCode: 1,
           detail: "Checkpoint ref is unavailable for diff operation.",
         });
       }
