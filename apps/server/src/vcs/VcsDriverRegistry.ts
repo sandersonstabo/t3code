@@ -40,6 +40,8 @@ export const make = Effect.fn("makeVcsDriverRegistry")(function* () {
     git,
   };
 
+  const resolveCache = new Map<string, VcsDriverHandle>();
+
   const detectWithDriver = Effect.fn("VcsDriverRegistry.detectWithDriver")(function* (
     kind: VcsDriverKind,
     driver: VcsDriverShape,
@@ -78,12 +80,19 @@ export const make = Effect.fn("makeVcsDriverRegistry")(function* () {
 
   const resolve: VcsDriverRegistryShape["resolve"] = Effect.fn("VcsDriverRegistry.resolve")(
     function* (input) {
+      const requestedKind = input.requestedKind ?? "auto";
+      const cacheKey = `${input.cwd}\0${requestedKind}`;
+      const cached = resolveCache.get(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
       const detected = yield* detect(input);
       if (detected) {
+        resolveCache.set(cacheKey, detected);
         return detected;
       }
 
-      const requestedKind = input.requestedKind ?? "auto";
       return yield* unsupported(
         "VcsDriverRegistry.resolve",
         requestedKind === "auto" ? "unknown" : requestedKind,
